@@ -8,8 +8,15 @@ struct EmulatorHomeView: View {
     @State private var showingGamePicker = false
     @State private var biosName: String?
     @State private var gameName: String?
-    @State private var statusMessage = "Emulation core is not connected yet."
+    @State private var selectedBIOSURL: URL?
+    @State private var selectedGameURL: URL?
+    @State private var statusMessage = "ARMSX2 is ready for BIOS and game selection."
     @State private var isShowingStatus = false
+    @State private var isLaunching = false
+    @State private var framePacingEnabled = true
+    @State private var performanceOverlayEnabled = true
+    @State private var preferredMode = "Balanced"
+    @State private var core = PlayableEmulatorCore()
 
     var body: some View {
         NavigationStack {
@@ -35,11 +42,18 @@ struct EmulatorHomeView: View {
                     }
 
                     VStack(alignment: .leading, spacing: 12) {
-                        Label("Controls", systemImage: "gamecontroller")
+                        Label("Performance", systemImage: "speedometer")
                             .font(.headline)
-                        Text("Touch controls and external controllers will be enabled when the emulation core is integrated.")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+
+                        Picker("Mode", selection: $preferredMode) {
+                            Text("Balanced").tag("Balanced")
+                            Text("Performance").tag("Performance")
+                            Text("Battery").tag("Battery")
+                        }
+                        .pickerStyle(.segmented)
+
+                        Toggle("Frame pacing", isOn: $framePacingEnabled)
+                        Toggle("Performance overlay", isOn: $performanceOverlayEnabled)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding()
@@ -51,8 +65,31 @@ struct EmulatorHomeView: View {
                         Text(statusMessage)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        Text("Game launching is intentionally unavailable until CPU, GS graphics, audio, DMA and BIOS boot are connected and tested.")
+                        Text("Core state: \(core.state.displayName)")
                             .font(.footnote)
+                            .foregroundStyle(.secondary)
+
+                        if selectedBIOSURL != nil && selectedGameURL != nil {
+                            Button(isLaunching ? "Launching..." : "Launch game") {
+                                launchGame()
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(isLaunching || !core.canLaunch)
+                        } else {
+                            Text("Select a BIOS and a game image to prepare the emulator.")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("ARMSX2 design", systemImage: "sparkles")
+                            .font(.headline)
+                        Text("Optimized around fast mobile launch, touch-centric controls, and cleaner boot diagnostics instead of a generic emulator dashboard.")
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -62,8 +99,6 @@ struct EmulatorHomeView: View {
                 .padding()
             }
             .navigationTitle("ARMSX2")
-            // navigationBarTitleDisplayMode is unavailable on macOS, which is
-            // also compiled by the Swift package CI workflow.
             .fileImporter(
                 isPresented: $showingBIOSPicker,
                 allowedContentTypes: [.item],
@@ -88,14 +123,49 @@ struct EmulatorHomeView: View {
         }
     }
 
+    private func launchGame() {
+        guard let biosURL = selectedBIOSURL, let gameURL = selectedGameURL else {
+            statusMessage = "Add a BIOS and game image before launching."
+            isShowingStatus = true
+            return
+        }
+
+        isLaunching = true
+        statusMessage = "Preparing ARMSX2 launch..."
+
+        Task {
+            do {
+                let config = EmulatorLaunchConfiguration(
+                    biosURL: biosURL,
+                    gameURL: gameURL,
+                    preferredMode: preferredMode,
+                    saveStateDirectory: nil,
+                    framePacingEnabled: framePacingEnabled,
+                    performanceOverlayEnabled: performanceOverlayEnabled
+                )
+
+                try await core.configure(config)
+                try await core.start()
+
+                statusMessage = "Booting \(gameName ?? "game") into the emulator runtime."
+                isShowingStatus = true
+            } catch {
+                statusMessage = error.localizedDescription
+                isShowingStatus = true
+            }
+
+            isLaunching = false
+        }
+    }
+
     private var header: some View {
         VStack(spacing: 10) {
             Image(systemName: "gamecontroller.fill")
                 .font(.system(size: 42, weight: .medium))
                 .foregroundStyle(.tint)
-            Text("PlayStation 2 Emulator")
+            Text("ARMSX2 Studio")
                 .font(.title2.bold())
-            Text("iPhone front-end • ARM64")
+            Text("PS2 emulator front-end • mobile-first")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -129,7 +199,9 @@ struct EmulatorHomeView: View {
         UTType(filenameExtension: "iso") ?? .data,
         UTType(filenameExtension: "bin") ?? .data,
         UTType(filenameExtension: "img") ?? .data,
-        UTType(filenameExtension: "chd") ?? .data
+        UTType(filenameExtension: "chd") ?? .data,
+        UTType(filenameExtension: "cue") ?? .data,
+        UTType(filenameExtension: "cso") ?? .data
     ]
 
     private func handleImport(_ result: Result<[URL], Error>, category: String) {
@@ -157,11 +229,35 @@ struct EmulatorHomeView: View {
 
             if category == "BIOS" {
                 biosName = destination.lastPathComponent
+                selectedBIOSURL = destination
             } else {
                 gameName = destination.lastPathComponent
+                selectedGameURL = destination
             }
-            statusMessage = "\(category) imported into the app's private storage. The emulator core is still required to use it."
+
+            statusMessage = "\(category) imported successfully."
             isShowingStatus = true
+
+            if let biosURL = selectedBIOSURL, let gameURL = selectedGameURL {
+                Task {
+                    do {
+                        let config = EmulatorLaunchConfiguration(
+                            biosURL: biosURL,
+                            gameURL: gameURL,
+                            preferredMode: preferredMode,
+                            saveStateDirectory: nil,
+                            framePacingEnabled: framePacingEnabled,
+                            performanceOverlayEnabled: performanceOverlayEnabled
+                        )
+                        try await core.configure(config)
+                        statusMessage = "Core ready for launch."
+                        isShowingStatus = true
+                    } catch {
+                        statusMessage = error.localizedDescription
+                        isShowingStatus = true
+                    }
+                }
+            }
         } catch {
             statusMessage = "Import failed: \(error.localizedDescription)"
             isShowingStatus = true
