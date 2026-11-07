@@ -62,7 +62,8 @@ struct EmulatorHomeView: View {
                 .padding()
             }
             .navigationTitle("ARMSX2")
-            .navigationBarTitleDisplayMode(.inline)
+            // navigationBarTitleDisplayMode is unavailable on macOS, which is
+            // also compiled by the Swift package CI workflow.
             .fileImporter(
                 isPresented: $showingBIOSPicker,
                 allowedContentTypes: [.item],
