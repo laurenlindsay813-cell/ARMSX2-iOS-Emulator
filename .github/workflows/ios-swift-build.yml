@@ -12,7 +12,9 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
-      - name: Select Swift toolchain
-        run: swift --version
-      - name: Build Swift package
-        run: swift build -v
+
+      - name: Show Xcode toolchain
+        run: xcodebuild -version && swift --version
+
+      - name: Build Swift package for iPhone simulator
+        run: swift build -v --triple arm64-apple-ios17.0-simulator --sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)"
