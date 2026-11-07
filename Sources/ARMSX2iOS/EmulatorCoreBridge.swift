@@ -8,6 +8,23 @@ enum EmulatorRuntimeState: Equatable {
     case running
     case paused
     case failed(reason: String)
+
+    var displayName: String {
+        switch self {
+        case .unavailable(let reason):
+            return "Unavailable — \(reason)"
+        case .ready:
+            return "Ready"
+        case .booting:
+            return "Booting"
+        case .running:
+            return "Running"
+        case .paused:
+            return "Paused"
+        case .failed(let reason):
+            return "Failed — \(reason)"
+        }
+    }
 }
 
 struct EmulatorLaunchConfiguration {
