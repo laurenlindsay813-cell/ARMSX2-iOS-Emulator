@@ -1,6 +1,6 @@
 ARMSX2 iOS Emulator
 
-An iOS emulator project exploring PlayStation 2 emulation using an ARMSX2/PCSX2-based core.
+An iOS emulator project exploring PlayStation 2 emulation using a custom PS2 emulator implementation.
 
 Planned Features
 
@@ -33,3 +33,34 @@ This project is intended for personal and educational emulation development. Use
 License
 
 License to be determined.
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+}
+
+h1 {
+    color: #333;
+    margin: 20px 0;
+}
+
+h2 {
+    color: #666;
+    margin: 10px 0;
+}
+
+p {
+    color: #555;
+    margin: 5px 0;
+}
+
+button {
+    padding: 10px 20px;
+    margin: 5px 0;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
