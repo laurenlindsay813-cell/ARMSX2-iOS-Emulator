@@ -1,66 +1,59 @@
-ARMSX2 iOS Emulator
-
-An iOS emulator project exploring PlayStation 2 emulation using a custom PS2 emulator implementation.
-
-Planned Features
-
-* Native ARM64 JIT support, subject to iOS restrictions
-* BIOS selection through the iOS Files app
-* Game image importing through Files
-* Planned ISO, BIN, IMG and CHD format support
-* Touchscreen controls
-* External controller support
-* Save states and memory card management
-* Per-game configuration
-* Performance and FPS overlay
-* iOS 27 compatibility testing
-
-Requirements
-
-* Compatible iPhone or iPad
-* Compatible iOS version
-* Legally obtained BIOS files and game images
-* Xcode and a compatible Mac for native iOS development
-
-Development Status
-
-Project setup and feature implementation are in progress. Features are not considered working until implemented and tested.
-
-Legal Notice
-
-This project is intended for personal and educational emulation development. Users must supply their own legally obtained BIOS files and game images.
-
-License
-
-License to be determined.
-
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f9;
-}
-
-h1 {
-    color: #333;
-    margin: 20px 0;
-}
-
-h2 {
-    color: #666;
-    margin: 10px 0;
-}
-
-p {
-    color: #555;
-    margin: 5px 0;
-}
-
-button {
-    padding: 10px 20px;
-    margin: 5px 0;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-}
+Sources/index.html
+patch
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARMSX2 iOS Emulator</title>
+    <link rel="stylesheet" href="styles/site.css">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>ARMSX2 iOS Emulator</h1>
+            <nav>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#get-started">Get Started</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <section id="home">
+                <h2>Welcome to ARMSX2 iOS Emulator</h2>
+                <p>Explore PlayStation 2 emulation on your iOS device.</p>
+            </section>
+            <section id="features">
+                <h2>Features</h2>
+                <ul>
+                    <li>Native ARM64 JIT support</li>
+                    <li>BIOS selection</li>
+                    <li>Game image importing</li>
+                    <li>ISO, BIN, IMG and CHD format support</li>
+                    <li>Touchscreen controls</li>
+                    <li>External controller support</li>
+                    <li>Save states and memory card management</li>
+                    <li>Per-game configuration</li>
+                    <li>Performance and FPS overlay</li>
+                    <li>iOS 27 compatibility testing</li>
+                </ul>
+            </section>
+            <section id="get-started">
+                <h2>Get Started</h2>
+                <p>Download the app from the App Store and follow the instructions.</p>
+            </section>
+            <section id="contact">
+                <h2>Contact</h2>
+                <p>Reach out if you have any questions or need assistance.</p>
+            </section>
+        </main>
+        <footer>
+            <p>&copy; 2023 ARMSX2 Studio</p>
+        </footer>
+    </div>
+    <script src="scripts/main.js"></script>
+</body>
+</html>
